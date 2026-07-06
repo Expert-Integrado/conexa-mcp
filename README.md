@@ -18,7 +18,7 @@ São **83 ferramentas** cobrindo toda a API v2 do Conexa: vendas, clientes, pess
 **Não precisa entender de programação.** Copie o bloco abaixo e cole em uma conversa com o Claude (Claude Code, Claude Desktop ou outro agente de IA que consiga executar comandos no seu computador). Ele cuida de tudo e pede as informações necessárias.
 
 ```text
-Quero instalar o servidor MCP do Conexa (https://github.com/AsafeSilva/conexa-mcp) neste computador. Siga estes passos:
+Quero instalar o servidor MCP do Conexa (https://github.com/Expert-Integrado/conexa-mcp) neste computador. Siga estes passos:
 
 1. Verifique se o Node.js 18 ou superior está instalado (node --version). Se não estiver, me oriente a instalar pelo site https://nodejs.org antes de continuar.
 
@@ -27,9 +27,9 @@ Quero instalar o servidor MCP do Conexa (https://github.com/AsafeSilva/conexa-mc
    b) TOKEN DE APLICAÇÃO do Conexa — me explique que ele é criado dentro do sistema Conexa, no menu Config > Integrações > API / Token, por um usuário administrador. Se eu não tiver o token, me guie para criar um.
 
 3. Configure o servidor MCP no cliente que estou usando:
-   - No Claude Code, use: claude mcp add conexa --scope user --env CONEXA_SUBDOMAIN=<subdominio> --env CONEXA_TOKEN=<token> -- npx -y github:AsafeSilva/conexa-mcp
-   - No Claude Desktop, adicione ao arquivo claude_desktop_config.json a entrada do servidor "conexa" com command "npx", args ["-y", "github:AsafeSilva/conexa-mcp"] e as variáveis de ambiente CONEXA_SUBDOMAIN e CONEXA_TOKEN.
-   - Em outros clientes MCP, use a configuração equivalente (command: npx -y github:AsafeSilva/conexa-mcp + as duas variáveis de ambiente).
+   - No Claude Code, use: claude mcp add conexa --scope user --env CONEXA_SUBDOMAIN=<subdominio> --env CONEXA_TOKEN=<token> -- npx -y conexa-mcp
+   - No Claude Desktop, adicione ao arquivo claude_desktop_config.json a entrada do servidor "conexa" com command "npx", args ["-y", "conexa-mcp"] e as variáveis de ambiente CONEXA_SUBDOMAIN e CONEXA_TOKEN.
+   - Em outros clientes MCP, use a configuração equivalente (command: npx -y conexa-mcp + as duas variáveis de ambiente).
 
 4. IMPORTANTE sobre segurança: grave o token SOMENTE no arquivo de configuração local do MCP. Não repita o token na conversa, não salve em outros arquivos e nunca envie para a internet ou para um repositório.
 
@@ -54,7 +54,7 @@ Quero instalar o servidor MCP do Conexa (https://github.com/AsafeSilva/conexa-mc
 claude mcp add conexa --scope user \
   --env CONEXA_SUBDOMAIN=minhaempresa \
   --env CONEXA_TOKEN=seu_token_aqui \
-  -- npx -y github:AsafeSilva/conexa-mcp
+  -- npx -y conexa-mcp
 ```
 
 </details>
@@ -69,7 +69,7 @@ Edite o arquivo `claude_desktop_config.json` (menu **Configurações > Desenvolv
   "mcpServers": {
     "conexa": {
       "command": "npx",
-      "args": ["-y", "github:AsafeSilva/conexa-mcp"],
+      "args": ["-y", "conexa-mcp"],
       "env": {
         "CONEXA_SUBDOMAIN": "minhaempresa",
         "CONEXA_TOKEN": "seu_token_aqui"
@@ -87,7 +87,7 @@ Depois feche e abra o Claude Desktop.
 <summary><strong>Rodando a partir do código-fonte</strong></summary>
 
 ```bash
-git clone https://github.com/AsafeSilva/conexa-mcp.git
+git clone https://github.com/Expert-Integrado/conexa-mcp.git
 cd conexa-mcp
 npm install
 npm run build

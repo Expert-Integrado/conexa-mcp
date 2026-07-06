@@ -35,7 +35,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AsafeSilva/conexa-mcp.git"
+    "url": "git+https://github.com/Expert-Integrado/conexa-mcp.git"
+  },
+  "homepage": "https://github.com/Expert-Integrado/conexa-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/Expert-Integrado/conexa-mcp/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
