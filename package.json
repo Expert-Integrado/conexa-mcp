@@ -1,0 +1,48 @@
+{
+  "name": "conexa-mcp",
+  "version": "0.1.0",
+  "description": "Servidor MCP (Model Context Protocol) para a API v2 do Conexa (conexa.app) — vendas, clientes, contratos, cobranças, coworking e mais.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "conexa-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "generate": "node scripts/generate-endpoints.js",
+    "prepare": "npm run build",
+    "start": "node dist/index.js",
+    "test": "node scripts/smoke-test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "conexa",
+    "conexa-app",
+    "coworking",
+    "api",
+    "claude"
+  ],
+  "author": "Asafe Silva",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AsafeSilva/conexa-mcp.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  }
+}
