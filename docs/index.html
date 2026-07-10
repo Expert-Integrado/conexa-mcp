@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conexa MCP — como funciona</title>
+<meta name="description" content="Conexa MCP conecta o Claude à API v2 do Conexa (conexa.app): 83 ferramentas para operar vendas, clientes, contratos, cobranças, financeiro e coworking por conversa.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%8C%3C/text%3E%3C/svg%3E">
+<style>
+  /* Tokens oficiais Expert Integrado (referência canônica: expert-brain/docs/index.html) */
+  :root{
+    --bg: #0b0f14;
+    --bg-raised: #10161d;
+    --bg-card: #131a22;
+    --line: #212b36;
+    --line-soft: #1a232c;
+    --ink: #e7edf3;
+    --ink-dim: #a7b3bf;
+    --ink-faint: #8a95a1;
+    --accent: #6ee7c4;
+    --accent-dim: #3fae8c;
+    --accent-2: #7aa2ff;
+    --accent-2-dim: #4f6bc4;
+    --warn: #f2b866;
+    --radius: 14px;
+    --maxw: 1080px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    background-image:
+      radial-gradient(1200px 600px at 15% -10%, rgba(110,231,196,.08), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(122,162,255,.07), transparent 55%);
+    background-repeat: no-repeat;
+    overflow-x: hidden;
+  }
+
+  ::selection{ background: rgba(110,231,196,.28); color: #fff; }
+
+  a{ color: var(--accent); text-decoration: none; }
+  a:hover{ text-decoration: underline; }
+
+  .wrap{ max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  section{ padding: 88px 0; border-top: 1px solid var(--line-soft); }
+
+  .eyebrow{
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700;
+    margin: 0 0 14px;
+  }
+  .eyebrow::before{ content:""; width:7px; height:7px; border-radius:50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(110,231,196,.15); }
+
+  h1,h2,h3,h4{ font-weight: 750; letter-spacing: -0.02em; margin: 0; }
+  h2{ font-size: clamp(1.6rem, 3vw, 2.2rem); }
+  .section-sub{ color: var(--ink-dim); max-width: 660px; margin: 14px 0 0; font-size: 1.02rem; }
+  .section-head{ margin-bottom: 42px; }
+
+  code, .mono{ font-family: var(--mono); }
+  code{
+    background: rgba(110,231,196,.1);
+    color: var(--accent);
+    padding: .12em .42em;
+    border-radius: 5px;
+    font-size: .88em;
+    border: 1px solid rgba(110,231,196,.18);
+  }
+
+  /* ---------- NAV ---------- */
+  .topnav{
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(10px);
+    background: rgba(11,15,20,.72);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .topnav .wrap{ display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .brand{ display: flex; align-items: center; gap: 10px; font-weight: 800; color: var(--ink); font-size: 1rem; }
+  .brand svg{ width: 26px; height: 26px; flex: none; }
+  .navlinks{ display: flex; gap: 22px; font-size: .92rem; }
+  .navlinks a{ color: var(--ink-dim); }
+  .navlinks a:hover{ color: var(--ink); text-decoration: none; }
+  @media (max-width: 700px){ .navlinks{ display: none; } }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding: 96px 0 84px; border-top: none; position: relative; overflow: hidden; }
+  .hero-grid{ display: grid; grid-template-columns: 1.12fr .88fr; gap: 48px; align-items: center; }
+  @media (max-width: 900px){ .hero-grid{ grid-template-columns: 1fr; } }
+
+  .badge-official{
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 13px; border-radius: 999px;
+    background: rgba(110,231,196,.09);
+    border: 1px solid rgba(110,231,196,.3);
+    color: var(--accent); font-size: .82rem; font-weight: 650;
+    margin-bottom: 20px;
+  }
+  .badge-official svg{ width: 14px; height: 14px; flex: none; }
+
+  .hero h1{
+    font-size: clamp(2.3rem, 5.2vw, 3.7rem);
+    line-height: 1.05;
+    background: linear-gradient(180deg, #fff, #c9d6e2 65%, var(--ink-dim));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero .tagline{
+    margin: 18px 0 0;
+    font-size: clamp(1.02rem, 1.6vw, 1.18rem);
+    color: var(--ink-dim);
+    max-width: 54ch;
+  }
+  .hero .tagline strong{ color: var(--ink); font-weight: 650; }
+
+  .cta-row{ display: flex; gap: 14px; flex-wrap: wrap; margin-top: 30px; }
+  .btn{
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 12px 21px; border-radius: 10px; font-weight: 650; font-size: .95rem;
+    border: 1px solid transparent;
+    transition: transform .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .btn:hover{ text-decoration: none; transform: translateY(-1px); }
+  .btn-primary{ background: var(--accent); color: #06110d; }
+  .btn-primary:hover{ background: #7fefce; }
+  .btn-ghost{ background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn-ghost:hover{ border-color: var(--accent-dim); color: var(--accent); }
+
+  .hero-badges{ display: flex; gap: 10px; flex-wrap: wrap; margin-top: 26px; }
+  .badge{
+    font-size: .78rem; color: var(--ink-faint); border: 1px solid var(--line);
+    padding: 5px 11px; border-radius: 999px; font-family: var(--mono);
+  }
+
+  /* Chat mock */
+  .chat-panel{
+    background: linear-gradient(160deg, var(--bg-raised), var(--bg-card));
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 30px 60px -30px rgba(0,0,0,.6);
+    display: flex; flex-direction: column; gap: 12px;
+    min-width: 0;
+  }
+  .chat-panel .msg{ max-width: 92%; padding: 11px 14px; border-radius: 13px; font-size: .9rem; }
+  .msg-user{
+    align-self: flex-end;
+    background: rgba(122,162,255,.14);
+    border: 1px solid rgba(122,162,255,.3);
+    color: var(--ink);
+    border-bottom-right-radius: 4px;
+  }
+  .msg-tool{
+    align-self: flex-start;
+    background: var(--bg);
+    border: 1px dashed var(--accent-dim);
+    color: var(--accent);
+    font-family: var(--mono); font-size: .78rem;
+    border-radius: 9px;
+    word-break: break-word;
+  }
+  .msg-ai{
+    align-self: flex-start;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    border-bottom-left-radius: 4px;
+  }
+  .msg-ai strong{ color: var(--ink); }
+  .chat-caption{ text-align: center; color: var(--ink-faint); font-size: .78rem; font-family: var(--mono); margin-top: 6px; }
+
+  /* ---------- CARDS ---------- */
+  .card-grid{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  @media (max-width: 980px){ .card-grid{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px){ .card-grid{ grid-template-columns: 1fr; } }
+
+  .card{
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px 21px;
+    transition: border-color .18s ease, transform .18s ease;
+    min-width: 0;
+  }
+  .card:hover{ border-color: var(--accent-dim); transform: translateY(-3px); }
+  .card-icon{
+    width: 42px; height: 42px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(110,231,196,.1); border: 1px solid rgba(110,231,196,.22);
+    margin-bottom: 15px;
+  }
+  .card-icon svg{ width: 21px; height: 21px; }
+  .card h3{ font-size: 1.02rem; margin-bottom: 8px; }
+  .card p{ color: var(--ink-dim); font-size: .92rem; margin: 0; }
+
+  .note-strip{
+    margin-top: 28px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent-dim);
+    border-radius: 10px;
+    padding: 16px 20px;
+    color: var(--ink-dim);
+    font-size: .94rem;
+  }
+  .note-strip strong{ color: var(--ink); }
+
+  /* ---------- PIPELINE ---------- */
+  .pipeline{
+    display: flex; align-items: stretch; gap: 10px;
+    background: var(--bg-card); border: 1px solid var(--line); border-radius: 18px;
+    padding: 26px; margin-bottom: 40px;
+  }
+  .pipe-node{
+    flex: 1; min-width: 0;
+    background: var(--bg-raised); border: 1px solid var(--line);
+    border-radius: 12px; padding: 16px 14px; text-align: center;
+  }
+  .pipe-node .pn-title{ font-weight: 700; font-size: .95rem; }
+  .pipe-node .pn-sub{ color: var(--ink-faint); font-size: .78rem; font-family: var(--mono); margin-top: 5px; word-break: break-word; }
+  .pipe-node.hl{ border-color: var(--accent-dim); box-shadow: 0 0 0 1px rgba(110,231,196,.12) inset; }
+  .pipe-node.hl .pn-title{ color: var(--accent); }
+  .pipe-arrow{ display: flex; align-items: center; color: var(--accent-dim); flex: none; }
+  .pipe-arrow svg{ width: 22px; height: 22px; }
+  @media (max-width: 760px){
+    .pipeline{ flex-direction: column; }
+    .pipe-arrow{ justify-content: center; }
+    .pipe-arrow svg{ transform: rotate(90deg); }
+  }
+
+  .flow{ display: flex; flex-direction: column; gap: 14px; }
+  .step{
+    display: flex; gap: 16px;
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 18px 20px;
+    transition: border-color .18s ease;
+  }
+  .step:hover{ border-color: var(--accent-dim); }
+  .step-n{
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--bg-raised); border: 1px solid var(--accent-dim); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: .9rem;
+  }
+  .step h3{ font-size: 1rem; margin-bottom: 4px; }
+  .step p{ color: var(--ink-dim); font-size: .94rem; margin: 0; }
+  .step .min0{ min-width: 0; }
+
+  /* ---------- TOOLS ---------- */
+  .tool-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .tool-card{
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 20px;
+    transition: border-color .18s ease; min-width: 0;
+  }
+  .tool-card:hover{ border-color: var(--accent-dim); }
+  .tool-head{ display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .tool-head h3{ font-size: .98rem; }
+  .tool-count{ font-family: var(--mono); font-size: .75rem; color: var(--ink-faint); flex: none; }
+  .chips{ display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip{
+    font-family: var(--mono); font-size: .74rem;
+    color: var(--ink-dim);
+    background: var(--bg-raised); border: 1px solid var(--line-soft);
+    border-radius: 6px; padding: 3px 8px;
+    word-break: break-word;
+  }
+  .chip.destr{ color: var(--warn); border-color: rgba(242,184,102,.28); }
+  .legend-inline{ margin-top: 22px; color: var(--ink-faint); font-size: .84rem; }
+  .legend-inline .chip{ vertical-align: middle; }
+
+  /* ---------- INSTALL ---------- */
+  .install-block{ margin-bottom: 34px; }
+  .install-block h3{ font-size: 1.08rem; margin-bottom: 14px; }
+  .install-block h3 .k{ color: var(--accent); font-family: var(--mono); margin-right: 8px; font-size: .95rem; }
+
+  .prereqs{ display: flex; flex-wrap: wrap; gap: 10px; }
+  .prereq{
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--bg-card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 10px 15px;
+    color: var(--ink-dim); font-size: .9rem;
+  }
+  .prereq svg{ width: 15px; height: 15px; color: var(--accent); flex: none; }
+
+  .codebox{
+    position: relative;
+    background: #0a0e13;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .codebox-bar{
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 9px 14px;
+    background: var(--bg-raised);
+    border-bottom: 1px solid var(--line-soft);
+    font-family: var(--mono); font-size: .76rem; color: var(--ink-faint);
+  }
+  .copy-btn{
+    font-family: var(--mono); font-size: .74rem;
+    color: var(--accent); background: transparent;
+    border: 1px solid var(--accent-dim); border-radius: 7px;
+    padding: 4px 11px; cursor: pointer;
+    transition: background .15s ease;
+  }
+  .copy-btn:hover{ background: rgba(110,231,196,.1); }
+  .codebox pre{
+    margin: 0; padding: 16px 18px;
+    font-family: var(--mono); font-size: .8rem; line-height: 1.55;
+    color: var(--ink-dim);
+    white-space: pre-wrap; word-break: break-word;
+    max-height: 480px; overflow-y: auto;
+  }
+  .codebox pre.nowrap{ white-space: pre; overflow-x: auto; word-break: normal; }
+
+  .table-wrap{ overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+  table{ width: 100%; border-collapse: collapse; font-size: .88rem; min-width: 560px; }
+  th, td{ text-align: left; padding: 11px 15px; border-bottom: 1px solid var(--line-soft); }
+  th{ color: var(--ink); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; background: var(--bg-raised); }
+  td{ color: var(--ink-dim); }
+  tr:last-child td{ border-bottom: none; }
+  td code{ white-space: nowrap; }
+
+  /* ---------- STACK ---------- */
+  .pills{ display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill{
+    padding: 6px 13px; border-radius: 999px;
+    font-family: var(--mono); font-size: .82rem;
+    background: var(--bg-raised); border: 1px solid var(--line); color: var(--ink-dim);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{ padding: 52px 0 68px; border-top: 1px solid var(--line-soft); }
+  .footer-grid{ display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 18px; }
+  .footer-note{ color: var(--ink-dim); font-size: .88rem; }
+  .footer-links{ display: flex; gap: 18px; font-size: .88rem; flex-wrap: wrap; }
+
+  /* ---------- REVEAL ---------- */
+  .reveal{ opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .5s ease; }
+  .reveal.on{ opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity: 1; transform: none; transition: none; }
+    html{ scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wrap">
+    <a class="brand" href="#topo" aria-label="Conexa MCP">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#6ee7c4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/>
+        <path d="M7 7h10a2 2 0 0 1 2 2v3a6 6 0 0 1-6 6h-2a6 6 0 0 1-6-6V9a2 2 0 0 1 2-2z"/>
+        <path d="M12 18v3"/>
+      </svg>
+      Conexa MCP
+    </a>
+    <div class="navlinks">
+      <a href="#o-que-e">O que é</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#ferramentas">Ferramentas</a>
+      <a href="#instalacao">Instalação</a>
+      <a href="https://github.com/Expert-Integrado/conexa-mcp">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="topo">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="badge-official">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 7.7l5.4-.8z"/>
+        </svg>
+        Servidor MCP oficial da Expert Integrado
+      </span>
+      <h1>Fale com o seu Conexa.</h1>
+      <p class="tagline">
+        O <strong>Conexa MCP</strong> conecta o Claude ao <strong>Conexa</strong> (conexa.app), sistema de gestão
+        de coworkings e negócios recorrentes — e transforma toda a API v2 em <strong>83 ferramentas</strong>
+        que você aciona por conversa: vendas, clientes, contratos, cobranças, financeiro e reservas de sala.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#instalacao">Instalar agora</a>
+        <a class="btn btn-ghost" href="https://github.com/Expert-Integrado/conexa-mcp">Código no GitHub</a>
+      </div>
+      <div class="hero-badges">
+        <span class="badge">83 ferramentas</span>
+        <span class="badge">API v2 completa</span>
+        <span class="badge">npx conexa-mcp</span>
+        <span class="badge">Node 18+</span>
+        <span class="badge">MIT</span>
+      </div>
+    </div>
+    <div class="chat-panel" aria-label="Exemplo ilustrativo de conversa">
+      <div class="msg msg-user">Liste as cobranças em aberto deste mês</div>
+      <div class="msg msg-tool">list_charges → GET /charges?limit=20&amp;status=…</div>
+      <div class="msg msg-ai">Encontrei <strong>3 cobranças em aberto</strong> em julho. A maior é da <strong>Empresa Exemplo Ltda</strong>, com vencimento dia 15. Quer que eu gere o QR Code Pix de alguma?</div>
+      <div class="msg msg-user">Reserve a Sala 2 amanhã às 14h</div>
+      <div class="msg msg-tool">create_room_booking → POST /room/booking</div>
+      <div class="chat-caption">conversa ilustrativa — dados fictícios</div>
+    </div>
+  </div>
+</header>
+
+<section id="o-que-e">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">01 · O que é</p>
+      <h2>O sistema inteiro, sem sair da conversa</h2>
+      <p class="section-sub">Um servidor MCP (Model Context Protocol) que roda na sua máquina e dá ao Claude acesso direto — e controlado — ao seu Conexa.</p>
+    </div>
+    <div class="card-grid reveal">
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6ee7c4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+        <h3>Converse, não clique</h3>
+        <p>"Cadastre o cliente", "quais salas estão reservadas amanhã?", "crie a venda" — pedidos em linguagem natural viram chamadas reais à API.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6ee7c4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <h3>Cobertura total da API v2</h3>
+        <p>Uma ferramenta para cada endpoint: 82 rotas da API v2 do Conexa, mais <code>test_connection</code> para validar a instalação.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6ee7c4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.5"/></svg>
+        </div>
+        <h3>Gerado da documentação oficial</h3>
+        <p>As definições das ferramentas são geradas automaticamente da collection Postman oficial da Conexa — quando a API evolui, o servidor acompanha.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6ee7c4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Seguro por padrão</h3>
+        <p>Token só no arquivo de configuração local, ações destrutivas marcadas (o Claude pede confirmação) e limite de requisições respeitado sozinho.</p>
+      </div>
+    </div>
+    <div class="note-strip reveal">
+      <strong>O que é o Conexa?</strong> É o sistema de gestão (conexa.app) usado por coworkings e negócios de receita recorrente:
+      clientes, planos, contratos, vendas, cobranças, financeiro e reservas de sala com check-in/check-out.
+      O Conexa MCP não substitui o sistema — coloca uma interface de conversa na frente dele.
+    </div>
+  </div>
+</section>
+
+<section id="como-funciona">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">02 · Como funciona</p>
+      <h2>Do pedido à resposta, em linha reta</h2>
+      <p class="section-sub">Tudo roda na sua máquina. O servidor conversa direto com o seu Conexa — nenhum intermediário na internet.</p>
+    </div>
+
+    <div class="pipeline reveal" role="img" aria-label="Fluxo: você fala com o Claude, o Claude aciona o conexa-mcp, que chama a API do seu Conexa">
+      <div class="pipe-node">
+        <div class="pn-title">Você</div>
+        <div class="pn-sub">pedido em português</div>
+      </div>
+      <div class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="pipe-node">
+        <div class="pn-title">Claude</div>
+        <div class="pn-sub">escolhe a ferramenta</div>
+      </div>
+      <div class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="pipe-node hl">
+        <div class="pn-title">conexa-mcp</div>
+        <div class="pn-sub">local · stdio · auth · rate limit</div>
+      </div>
+      <div class="pipe-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="pipe-node">
+        <div class="pn-title">Seu Conexa</div>
+        <div class="pn-sub">SEUSUBDOMINIO.conexa.app</div>
+      </div>
+    </div>
+
+    <div class="flow reveal">
+      <div class="step">
+        <div class="step-n">1</div>
+        <div class="min0"><h3>Você pede em português</h3><p>"Liste as cobranças em aberto deste mês", "cadastre o cliente João da Silva", "quais salas estão reservadas para amanhã?".</p></div>
+      </div>
+      <div class="step">
+        <div class="step-n">2</div>
+        <div class="min0"><h3>O Claude escolhe a ferramenta certa</h3><p>Entre as 83 disponíveis — cada uma descreve seus campos e filtros a partir da documentação oficial, então o Claude sabe exatamente o que preencher.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-n">3</div>
+        <div class="min0"><h3>O conexa-mcp monta a requisição</h3><p>Parâmetros de rota, filtros (aceitam múltiplos valores por vírgula), paginação com <code>limit</code>/<code>offset</code> e corpo JSON — tudo validado antes de sair.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-n">4</div>
+        <div class="min0"><h3>Autentica no seu Conexa</h3><p>Com o Token de Aplicação (recomendado) ou com usuário e senha — nesse modo o servidor faz o login sozinho, renova a sessão e reautentica automaticamente se ela expirar.</p></div>
+      </div>
+      <div class="step">
+        <div class="step-n">5</div>
+        <div class="min0"><h3>Respeita o limite da API</h3><p>Fila local de 55 requisições por minuto (margem sob o limite oficial de 60) e espera automática quando a API pede para aguardar (HTTP 429).</p></div>
+      </div>
+      <div class="step">
+        <div class="step-n">6</div>
+        <div class="min0"><h3>A resposta volta para a conversa</h3><p>JSON legível de volta ao Claude, que responde em português. Erro da API vira mensagem clara, com o status e o motivo — nada de falha silenciosa.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ferramentas">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">03 · Ferramentas</p>
+      <h2>83 ferramentas, uma por endpoint</h2>
+      <p class="section-sub">Organizadas por área do Conexa. Nomes reais — é exatamente isso que o Claude enxerga.</p>
+    </div>
+    <div class="tool-grid reveal">
+      <div class="tool-card">
+        <div class="tool-head"><h3>Vendas</h3><span class="tool-count">5</span></div>
+        <div class="chips"><span class="chip">create_sale</span><span class="chip">get_sale</span><span class="chip">update_sale</span><span class="chip destr">delete_sale</span><span class="chip">list_sales</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Clientes</h3><span class="tool-count">5</span></div>
+        <div class="chips"><span class="chip">create_customer</span><span class="chip">get_customer</span><span class="chip">update_customer</span><span class="chip destr">delete_customer</span><span class="chip">list_customers</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Pessoas</h3><span class="tool-count">5</span></div>
+        <div class="chips"><span class="chip">create_person</span><span class="chip">get_person</span><span class="chip">update_person</span><span class="chip destr">delete_person</span><span class="chip">list_persons</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Planos</h3><span class="tool-count">5</span></div>
+        <div class="chips"><span class="chip">create_plan</span><span class="chip">get_plan</span><span class="chip">update_plan</span><span class="chip destr">delete_plan</span><span class="chip">list_plans</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Contratos</h3><span class="tool-count">7</span></div>
+        <div class="chips"><span class="chip">create_contract</span><span class="chip">get_contract</span><span class="chip">update_contract</span><span class="chip destr">end_contract</span><span class="chip destr">delete_contract</span><span class="chip">list_contracts</span><span class="chip">request_contract_signature</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Vendas recorrentes</h3><span class="tool-count">6</span></div>
+        <div class="chips"><span class="chip">create_recurring_sale</span><span class="chip">get_recurring_sale</span><span class="chip">update_recurring_sale</span><span class="chip destr">end_recurring_sale</span><span class="chip destr">delete_recurring_sale</span><span class="chip">list_recurring_sales</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Produtos</h3><span class="tool-count">5</span></div>
+        <div class="chips"><span class="chip">create_product</span><span class="chip">get_product</span><span class="chip">update_product</span><span class="chip destr">delete_product</span><span class="chip">list_products</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Cobranças</h3><span class="tool-count">6</span></div>
+        <div class="chips"><span class="chip">create_charge</span><span class="chip">get_charge</span><span class="chip">list_charges</span><span class="chip">settle_charge</span><span class="chip">get_charge_pix</span><span class="chip">create_credit_card</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Financeiro</h3><span class="tool-count">11</span></div>
+        <div class="chips"><span class="chip">create_bill</span><span class="chip">get_bill</span><span class="chip">list_bills</span><span class="chip">get_bill_category</span><span class="chip">list_bill_categories</span><span class="chip">get_bill_subcategory</span><span class="chip">list_bill_subcategories</span><span class="chip">get_cost_center</span><span class="chip">list_cost_centers</span><span class="chip">get_account</span><span class="chip">list_accounts</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Meios de pagamento</h3><span class="tool-count">6</span></div>
+        <div class="chips"><span class="chip">get_invoicing_method</span><span class="chip">list_invoicing_methods</span><span class="chip">get_receiving_method</span><span class="chip">list_receiving_methods</span><span class="chip">get_payment_method</span><span class="chip">list_payment_methods</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Fornecedores</h3><span class="tool-count">3</span></div>
+        <div class="chips"><span class="chip">create_supplier</span><span class="chip">get_supplier</span><span class="chip">list_suppliers</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Campos extras</h3><span class="tool-count">5</span></div>
+        <div class="chips"><span class="chip">create_extra_field</span><span class="chip">get_extra_field</span><span class="chip">update_extra_field</span><span class="chip destr">delete_extra_field</span><span class="chip">list_extra_fields</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Unidades e serviços</h3><span class="tool-count">4</span></div>
+        <div class="chips"><span class="chip">get_company</span><span class="chip">list_companies</span><span class="chip">get_service_category</span><span class="chip">list_service_categories</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Leads</h3><span class="tool-count">1</span></div>
+        <div class="chips"><span class="chip">create_potential_customer</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Coworking</h3><span class="tool-count">8</span></div>
+        <div class="chips"><span class="chip">create_room_booking</span><span class="chip">get_room_booking</span><span class="chip">update_room_booking</span><span class="chip destr">cancel_room_booking</span><span class="chip">checkout_room_booking</span><span class="chip">list_room_bookings</span><span class="chip">create_checkin</span><span class="chip">create_checkout</span></div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-head"><h3>Utilitário</h3><span class="tool-count">1</span></div>
+        <div class="chips"><span class="chip">test_connection</span></div>
+      </div>
+    </div>
+    <p class="legend-inline reveal"><span class="chip destr">amarelo</span> = ação destrutiva (excluir, encerrar, cancelar) — marcada no protocolo, o Claude pede sua confirmação antes de executar.</p>
+  </div>
+</section>
+
+<section id="instalacao">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">04 · Instalação guiada</p>
+      <h2>Deixe o próprio Claude instalar</h2>
+      <p class="section-sub">Não precisa entender de programação: copie o prompt abaixo e cole em uma conversa com o Claude (Claude Code ou Claude Desktop). Ele verifica os pré-requisitos, oferece pilotar o navegador na hora de obter o token e só declara pronto depois de validar a conexão de verdade.</p>
+    </div>
+
+    <div class="install-block reveal">
+      <h3><span class="k">a.</span>Antes de começar, tenha em mãos</h3>
+      <div class="prereqs">
+        <span class="prereq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Node.js 18 ou superior</span>
+        <span class="prereq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Claude Code ou Claude Desktop</span>
+        <span class="prereq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>Acesso de administrador ao seu Conexa</span>
+      </div>
+      <p class="section-sub" style="margin-top:14px; font-size:.92rem;">O Token de Aplicação é criado dentro do Conexa, em <strong>Config &gt; Integrações &gt; API / Token</strong> — o assistente oferece fazer essa parte por você, pilotando o navegador (você faz o login; a senha nunca passa pelo chat).</p>
+    </div>
+
+    <div class="install-block reveal">
+      <h3><span class="k">b.</span>Copie e cole este prompt no Claude</h3>
+      <div class="codebox">
+        <div class="codebox-bar"><span>prompt de instalação</span><button class="copy-btn" data-copy="prompt-install" aria-label="Copiar prompt de instalação">copiar</button></div>
+        <pre id="prompt-install">Quero instalar o servidor MCP do Conexa (https://github.com/Expert-Integrado/conexa-mcp) nesta máquina. Conduza o processo do início ao fim, nesta ordem, sem pular a validação final:
+
+1. PRÉ-REQUISITOS — verifique com comandos reais: rode "node --version" (precisa ser 18 ou superior). Se o Node.js não estiver instalado, me oriente a instalar pelo site https://nodejs.org e só continue depois de confirmar. Identifique também qual cliente estou usando (Claude Code, Claude Desktop ou outro cliente MCP).
+
+2. SUBDOMÍNIO — me pergunte o subdomínio do meu Conexa: é a primeira parte do endereço que uso para acessar o sistema (se acesso "minhaempresa.conexa.app", o subdomínio é "minhaempresa"). Não continue sem essa resposta.
+
+3. TOKEN DE APLICAÇÃO (etapa de navegador) — o token é criado dentro do Conexa, no menu Config > Integrações > API / Token, por um usuário administrador. Antes de executar, pergunte com a ferramenta AskUserQuestion (botões; se o cliente não tiver botões, pergunte em texto): "Essa etapa é no navegador. Quer que eu faça para você?" com estas opções:
+   - "Sim, pilote o navegador" (opção padrão): use o Playwright MCP; se ele não estiver instalado, instale antes com "claude mcp add playwright -- npx -y @playwright/mcp@latest" e me avise caso precise reiniciar a sessão. Abra https://SUBDOMINIO.conexa.app, PARE na tela de login e peça para eu fazer o login sozinho — NUNCA peça minha senha no chat. Depois que eu confirmar que entrei, navegue até Config > Integrações > API / Token e me ajude a gerar e copiar o Token de Aplicação.
+   - "Usar o Claude in Chrome": mesmo roteiro, pilotando o meu Chrome (que já tem minha sessão logada).
+   - "Prefiro fazer manualmente": me passe o passo a passo — acessar https://SUBDOMINIO.conexa.app com usuário administrador, abrir Config > Integrações > API / Token, gerar o token e colar aqui UMA única vez, só para ele ir direto para o arquivo de configuração local.
+
+4. REGISTRO DO MCP — configure o servidor com as variáveis de ambiente corretas:
+   - Claude Code: claude mcp add conexa --scope user --env CONEXA_SUBDOMAIN=<subdominio> --env CONEXA_TOKEN=<token> -- npx -y conexa-mcp
+   - Claude Desktop: adicione ao claude_desktop_config.json (menu Configurações > Desenvolvedor > Editar configuração) o servidor "conexa" com command "npx", args ["-y", "conexa-mcp"] e as variáveis CONEXA_SUBDOMAIN e CONEXA_TOKEN.
+   - Outro cliente MCP: configuração equivalente (command: npx -y conexa-mcp + as duas variáveis).
+
+5. SEGURANÇA — o token vive SOMENTE no arquivo de configuração local do MCP (ou em um .env local). Não repita o token na conversa depois de salvo, não grave em outros arquivos e nunca envie para a internet ou para um repositório.
+
+6. VALIDAÇÃO REAL — peça para eu reiniciar o cliente (fechar e abrir) e então chame a ferramenta test_connection do servidor conexa. Só considere a credencial válida se a resposta confirmar que a conexão está funcionando. Se der erro, leia a mensagem (token errado, subdomínio errado e token expirado são as causas mais comuns) e me ajude a corrigir antes de seguir.
+
+7. TESTE FINAL E RESUMO — faça uma chamada de leitura de verdade (por exemplo, list_companies com limit 1), me mostre o resultado e termine com um resumo: o que foi instalado, onde o token ficou salvo e 3 exemplos de pedidos que eu já posso fazer.</pre>
+      </div>
+    </div>
+
+    <div class="install-block reveal">
+      <h3><span class="k">c.</span>Ou instale manualmente (Claude Code)</h3>
+      <div class="codebox">
+        <div class="codebox-bar"><span>terminal</span><button class="copy-btn" data-copy="cmd-install" aria-label="Copiar comando de instalação">copiar</button></div>
+        <pre id="cmd-install" class="nowrap">claude mcp add conexa --scope user \
+  --env CONEXA_SUBDOMAIN=minhaempresa \
+  --env CONEXA_TOKEN=seu_token_aqui \
+  -- npx -y conexa-mcp</pre>
+      </div>
+      <p class="section-sub" style="margin-top:12px; font-size:.92rem;">Claude Desktop, execução a partir do código-fonte e solução de problemas: veja o <a href="https://github.com/Expert-Integrado/conexa-mcp/blob/master/INSTALL.md">guia de instalação completo</a>.</p>
+    </div>
+
+    <div class="install-block reveal">
+      <h3><span class="k">d.</span>Variáveis de ambiente</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Variável</th><th>Obrigatória</th><th>Descrição</th></tr></thead>
+          <tbody>
+            <tr><td><code>CONEXA_SUBDOMAIN</code></td><td>Sim*</td><td>Subdomínio do seu Conexa (<code>minhaempresa</code> de <code>minhaempresa.conexa.app</code>)</td></tr>
+            <tr><td><code>CONEXA_TOKEN</code></td><td>Sim**</td><td>Token de Aplicação (recomendado) — criado em Config &gt; Integrações &gt; API / Token</td></tr>
+            <tr><td><code>CONEXA_USERNAME</code> / <code>CONEXA_PASSWORD</code></td><td>Alternativa**</td><td>Login de um usuário admin/funcionário; o servidor autentica e renova a sessão sozinho</td></tr>
+            <tr><td><code>CONEXA_BASE_URL</code></td><td>Alternativa*</td><td>URL completa da API, para ambientes fora do padrão <code>https://X.conexa.app/index.php/api/v2</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="legend-inline">* informe <code>CONEXA_SUBDOMAIN</code> ou <code>CONEXA_BASE_URL</code> · ** informe <code>CONEXA_TOKEN</code> ou usuário e senha.</p>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <p class="eyebrow">05 · Stack</p>
+      <h2>Pequeno, auditável, sem servidor no meio</h2>
+      <p class="section-sub">Duas dependências de runtime. O código que fala com a API tem ~140 linhas — dá para ler inteiro antes de confiar.</p>
+    </div>
+    <div class="pills reveal">
+      <span class="pill">TypeScript</span>
+      <span class="pill">Node.js 18+</span>
+      <span class="pill">@modelcontextprotocol/sdk</span>
+      <span class="pill">Zod</span>
+      <span class="pill">stdio transport</span>
+      <span class="pill">npm: conexa-mcp</span>
+      <span class="pill">tools geradas da collection Postman</span>
+      <span class="pill">MIT</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div class="footer-note">Feito pela <a href="https://expertintegrado.com.br">Expert Integrado</a> — IA aplicada a negócios.</div>
+    <div class="footer-links">
+      <a href="https://github.com/Expert-Integrado/conexa-mcp">Código no GitHub</a>
+      <a href="https://github.com/Expert-Integrado/conexa-mcp/blob/master/INSTALL.md">Guia de instalação</a>
+      <a href="https://expertintegrado.com.br">expertintegrado.com.br</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Reveal on scroll
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function(el){ el.classList.add('on'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.08 });
+    els.forEach(function(el){ io.observe(el); });
+  })();
+
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var el = document.getElementById(btn.getAttribute('data-copy'));
+      if (!el) return;
+      var done = function(){
+        btn.textContent = 'copiado';
+        setTimeout(function(){ btn.textContent = 'copiar'; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(el.textContent).then(done);
+      } else {
+        var r = document.createRange();
+        r.selectNodeContents(el);
+        var sel = window.getSelection();
+        sel.removeAllRanges(); sel.addRange(r);
+        document.execCommand('copy'); sel.removeAllRanges();
+        done();
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
