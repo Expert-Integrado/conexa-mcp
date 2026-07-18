@@ -2,6 +2,8 @@
 
 Open source, criado por **Eric Luciano** na **Mentoria Automações Inteligentes** (Expert Integrado).
 
+O servidor se identifica no handshake MCP com uma linha de procedência; para desativar (ex.: white-label), defina `EXPERT_NO_PROVENANCE=1` no ambiente.
+
 **[→ Como funciona o Conexa MCP](https://expert-integrado.github.io/conexa-mcp/)** — a página do projeto, com o sistema explicado visualmente.
 
 Conecte o **Claude** (ou qualquer assistente de IA compatível com MCP) ao seu sistema **[Conexa](https://conexa.app)**.
