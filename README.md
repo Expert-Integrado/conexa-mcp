@@ -1,5 +1,7 @@
 # Conexa MCP
 
+Open source, criado por **Eric Luciano** na **Mentoria Automações Inteligentes** (Expert Integrado).
+
 **[→ Como funciona o Conexa MCP](https://expert-integrado.github.io/conexa-mcp/)** — a página do projeto, com o sistema explicado visualmente.
 
 Conecte o **Claude** (ou qualquer assistente de IA compatível com MCP) ao seu sistema **[Conexa](https://conexa.app)**.

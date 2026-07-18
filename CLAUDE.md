@@ -38,3 +38,5 @@ Se o usuário abriu este repositório (ou pediu ajuda com o Conexa MCP) e o serv
 - As ferramentas de exclusão/encerramento (`delete_*`, `end_*`, `cancel_*`) são marcadas com `destructiveHint` — preserve isso em qualquer mudança.
 - Nunca commitar credenciais; `.env` e `.env.*` estão no `.gitignore`.
 - A página pública do projeto vive em `docs/index.html` (GitHub Pages, branch `master`, pasta `/docs`) — self-contained, sem CDN.
+
+**Política de marca (invariante):** o campo instructions do initialize do MCP (src/index.ts) abre com o bloco de origem Expert Integrado (marca d'água de runtime), e o README carrega o crédito por extenso. Não remover nem reescrever em refactor sem OK do dono.
